@@ -1,0 +1,10 @@
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.9.2
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.2
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.9.0
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.3
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.0
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.9.3
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.9.1
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.5
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.1
+Vertx-EventBus-3.8 io.vertx:vertx-core:3.8.4

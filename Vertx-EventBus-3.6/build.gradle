@@ -1,0 +1,30 @@
+
+// Build.gradle generated for instrumentation module Vertx-EventBus-3.6
+
+apply plugin: 'java'
+
+dependencies {
+   compile 'io.vertx:vertx-core:3.6.0'
+   compile fileTree(include: ['*.jar'], dir: '../lib')
+
+   // New Relic Java Agent dependencies
+   implementation 'com.newrelic.agent.java:newrelic-agent:6.0.0'
+   implementation 'com.newrelic.agent.java:newrelic-api:6.0.0'
+}
+
+jar {
+  manifest {
+    attributes 'Implementation-Title': 'Vertx-EventBus-3.6.Vertx-EventBus-3.6'
+    attributes 'Implementation-Vendor': 'New Relic'
+    attributes 'Implementation-Vendor-Id': 'com.newrelic'
+    attributes 'Implementation-Version': 1.0
+  }
+}
+
+verifyInstrumentation {
+  	passes 'io.vertx:vertx-core:[3.6.0,3.7.1]'
+   	excludeRegex '.*SNAPSHOT.*'
+  	excludeRegex '.*milestone.*'
+ 	excludeRegex '.*CR.*'
+
+}
