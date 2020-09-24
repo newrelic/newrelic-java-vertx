@@ -3,6 +3,9 @@
 # Vert.x Event Bus instrumentation
 
 > Provides instrumentation code for monitoring the Vert.x Event Bus.  Tracks flow across the event bus.
+> 
+> Vertx-Verticles provides instrumentation for classes extends AbstractVerticle.  It does this by instrumenting each class that is deployed.  It tracks all methods except those defined by AbstractVerticle. Methods not tracked: 	start, stop, rxStart, rxStop, config, deploymentID, getVertx, init, processArgs.
+
 
 ## Installation
 
@@ -49,6 +52,13 @@
 > see https://github.com/newrelic/newrelic-gradle-verify-instrumentation for more information
 
 ## Support
+
+> Vertx-EventBus-3.5 supports Vert.x versions 3.5.x
+> Vertx-EventBus-3.6 supports Vert.x versions 3.6.x & 3.7.0
+> Vertx-EventBus-3.7.1 supports Vert.x version 3.7.1
+> Vertx-EventBus-3.8 supports Vert.x versions 3.8.x & 3.9.x
+> Vertx-Verticles supports Vert.x versions 3.x beyond 3.5.0
+> 
 
 New Relic hosts and moderates an online forum where customers can interact with New Relic employees as well as other customers to get help and share best practices. Like all official New Relic open source projects, there's a related Community topic in the New Relic Explorers Hub. You can find this project's topic/threads here:
 
