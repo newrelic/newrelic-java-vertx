@@ -2,26 +2,51 @@
 
 # Vert.x Event Bus instrumentation
 
->[Brief description - what is the project and value does it provide? How often should users expect to get releases? How is versioning set up? Where does this project want to go?]
+> Provides instrumentation code for monitoring the Vert.x Event Bus.  Tracks flow across the event bus.
 
 ## Installation
 
-> [Include a step-by-step procedure on how to get your code installed. Be sure to include any third-party dependencies that need to be installed separately]
+> Clone this repository to your local disk
 
 ## Getting Started
->[Simple steps to start working with the software similar to a "Hello World"]
+> Install Gradle if needed.
+> 
+> Project can be imported into Eclipse or IntelliJ
+>
+> Eclipse:
+> All modules
+> gradle eclipse
+>
+> Individual Module
+> gradle moduleName:eclipse
+> e.g. gradle Vertx-EventBus-3.8:eclipse
+>
+> IntelliJ
+> same command except use idea rather than eclipse
+
 
 ## Usage
->[**Optional** - Include more thorough instructions on how to use the software. This section might not be needed if the Getting Started section is enough. Remove this section if it's not needed.]
+>
 
 
 ## Building
 
->[**Optional** - Include this section if users will need to follow specific instructions to build the software from source. Be sure to include any third party build dependencies that need to be installed separately. Remove this section if it's not needed.]
+> Set the environment variable NEW_RELIC_EXTENSIONS_DIR to the directory where you would like to build the extension jar(s)
+>
+> To build all modules
+> gradle clean install
+>
+> To build a modules
+> gradle moduleName:clean moduleName:install
 
 ## Testing
 
->[**Optional** - Include instructions on how to run tests if we include tests with the codebase. Remove this section if it's not needed.]
+> Not currently supported.  Will be supported in the future
+
+## Verifying
+
+> To verify that the module will load into the Java Agent used the verifyInstrumentation option
+> see https://github.com/newrelic/newrelic-gradle-verify-instrumentation for more information
 
 ## Support
 
