@@ -4,11 +4,12 @@
 apply plugin: 'java'
 
 dependencies {
-    compile group: 'io.vertx', name: 'vertx-mongo-client', version: '3.5.3'
+    implementation group: 'io.vertx', name: 'vertx-mongo-client', version: '3.5.3'
 
    // New Relic Java Agent dependencies
    implementation 'com.newrelic.agent.java:newrelic-agent:6.0.0'
    implementation 'com.newrelic.agent.java:newrelic-api:6.0.0'
+   implementation fileTree(include: ['*.jar'], dir: '../libs')
 }
 
 jar {

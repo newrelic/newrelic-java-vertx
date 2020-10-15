@@ -10,6 +10,15 @@ project.ext {
 
 }
 
+task checkForDependencies(type: Exec) {
+    environment "JAVAAGENTVERSION", javaAgentVersion
+    def rootProject = projectDir.path
+    def cmdLine = rootProject+'/newrelic-dependencies.sh'
+    workingDir rootProject
+    commandLine  cmdLine 
+
+}
+
 buildscript {
   repositories {
     maven {
@@ -33,10 +42,14 @@ buildscript {
 import templates.*
 
 task createModule {
+  dependsOn checkForDependencies
   description = 'Generate project files for a new instrumentation module'
   group = 'New Relic'
   doLast {
-    String projectGroup = TemplatesPlugin.prompt('Instrumentation Module Group (default: ' + project.ext.group + '):\n')
+ 
+    def rootProject = projectDir.path
+    
+   String projectGroup = TemplatesPlugin.prompt('Instrumentation Module Group (default: ' + project.ext.group + '):\n')
     String projectName = TemplatesPlugin.prompt('Instrumentation Module Name:\n')
 
     if (projectName == null) {
@@ -51,6 +64,8 @@ task createModule {
       projectGroup = projectGroup.trim()
     }
 
+    def projectLibDir = new File(rootProject+'/lib')
+
     def projectPath = new File(projectName)
     if (projectPath.exists()) {
       throw new Exception(projectPath.path + ' already exists.')
@@ -60,7 +75,6 @@ task createModule {
     def projectTest = new File(projectPath, 'src/test/java')
     mkdir projectJava
     mkdir projectTest
-    
     
     ProjectTemplate.fromRoot(projectPath) {
        'build.gradle' '''
@@ -76,8 +90,7 @@ task createModule {
            // New Relic Java Agent dependencies
            implementation 'com.newrelic.agent.java:newrelic-agent:JAVA_AGENT_VERSION'
            implementation 'com.newrelic.agent.java:newrelic-api:JAVA_AGENT_VERSION'
-           
-           implementation fileTree(include: ['*.jar'], dir: '../lib')
+           implementation fileTree(include: ['*.jar'], dir: '../libs')
         }
 
         jar {
