@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: Vertx-EventBus-3.8.Vertx-EventBus-3.8
-Implementation-Version: 1.0
-Implementation-Vendor-Id: com.newrelic
-Implementation-Vendor: New Relic
-
