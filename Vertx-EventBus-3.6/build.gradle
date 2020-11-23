@@ -22,7 +22,7 @@ jar {
 }
 
 verifyInstrumentation {
-  	passes 'io.vertx:vertx-core:[3.6.0,3.7.1]'
+  	passes 'io.vertx:vertx-core:[3.6.0,3.7.1)'
    	excludeRegex '.*SNAPSHOT.*'
   	excludeRegex '.*milestone.*'
  	excludeRegex '.*CR.*'
