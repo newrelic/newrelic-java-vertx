@@ -23,11 +23,10 @@ jar {
 }
 
 verifyInstrumentation {
-  	passes ('io.vertx:vertx-core:[3.8.0,)' ) {
+  	passes ('io.vertx:vertx-core:[3.8.0,3.9.4]' ) {
   	  compile('com.newrelic.agent.java:newrelic-agent:6.0.0')
   	}
   	excludeRegex '.*SNAPSHOT'
   	excludeRegex '.*milestone.*'
   	excludeRegex '.*Beta.*'
-  	excludeRegex '.*CR.*'
 }
