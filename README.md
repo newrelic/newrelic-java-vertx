@@ -1,6 +1,6 @@
 [![Experimental Project header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#experimental)
 
-# Vert.x Event Bus instrumentation
+# New Relic Java Instrumentation for Vert.x Event Bus
 
 > Provides instrumentation code for monitoring the Vert.x Event Bus.  Tracks flow across the event bus.
 > 
