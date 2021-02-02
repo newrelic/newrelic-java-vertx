@@ -1,7 +1,6 @@
 package io.vertx.core.eventbus.impl.clustered;
 
 import java.net.URI;
-import java.util.logging.Level;
 
 import com.newrelic.api.agent.GenericParameters;
 import com.newrelic.api.agent.NewRelic;

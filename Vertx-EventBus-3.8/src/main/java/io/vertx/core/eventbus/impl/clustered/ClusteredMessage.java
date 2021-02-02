@@ -21,6 +21,12 @@ public abstract class ClusteredMessage<U, V> extends MessageImpl<U, V> {
 	@Trace(async=true)
 	public void readFromWire(Buffer buffer, CodecManager codecManager) {
 		Weaver.callOriginal();
+	}
+	
+	
+	@SuppressWarnings("unused")
+	private void decodeHeaders() {
+		Weaver.callOriginal();
 		if(headers != null) {
 			String metadata = headers.get(TokenUtils.REQUESTMETADATA);
 			if(metadata != null && !metadata.isEmpty()) {

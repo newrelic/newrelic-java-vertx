@@ -29,6 +29,10 @@ public class VertxCoreUtil {
 	
 	private static final String VERTX_CORE_3_6 = "com.newrelic.instrumentation.vertx-core-3.6.0";
 
+	private static final String VERTX_CORE_3_8 = "com.newrelic.instrumentation.vertx-core-3.8.0";
+
+	private static final String VERTX_CORE_3_9 = "com.newrelic.instrumentation.vertx-core-3.9.0";
+
 	private VertxCoreUtil() {
     }
 
@@ -102,6 +106,20 @@ public class VertxCoreUtil {
 							logger.log(Level.FINE, "Disable Weaver package: {0}",VERTX_CORE_3_6);
 						} else {
 							logger.log(Level.FINE, "Failed to disable weaver package {0} because it was not found",VERTX_CORE_3_6);
+						}
+						WeavePackage weavePackage2 = weavePkgMgr.deregister(VERTX_CORE_3_8);
+						if(weavePackage2 != null) {
+							vertxCorePkg = weavePackage2;
+							logger.log(Level.FINE, "Disable Weaver package: {0}",VERTX_CORE_3_8);
+						} else {
+							logger.log(Level.FINE, "Failed to disable weaver package {0} because it was not found",VERTX_CORE_3_8);
+						}
+						WeavePackage weavePackage3 = weavePkgMgr.deregister(VERTX_CORE_3_9);
+						if(weavePackage3 != null) {
+							vertxCorePkg = weavePackage3;
+							logger.log(Level.FINE, "Disable Weaver package: {0}",VERTX_CORE_3_9);
+						} else {
+							logger.log(Level.FINE, "Failed to disable weaver package {0} because it was not found",VERTX_CORE_3_9);
 						}
 					} else {
 						logger.log(Level.FINE, "WeavePackageManager is null");
