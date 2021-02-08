@@ -13,7 +13,7 @@ public abstract class TaskQueue {
 
 	@Trace
 	public void execute(Runnable task, Executor executor) {
-		if(!(task instanceof NRRunnableWrapper)) {
+		if(task == null || !(task instanceof NRRunnableWrapper)) {
 			NRRunnableWrapper wrapper = new NRRunnableWrapper(task, NewRelic.getAgent().getTransaction().getToken());
 			task = wrapper;
 		}

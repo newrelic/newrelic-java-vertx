@@ -29,7 +29,7 @@ public class NRMessageHandlerWrapper<T> implements Handler<Message<T>> {
 	}
 
 	@Override
-	@Trace(dispatcher=true,async=true)
+	@Trace(async=true)
 	public void handle(Message<T> event) {
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","MessageHandler","handle"});
 		if(token != null) {
@@ -40,7 +40,9 @@ public class NRMessageHandlerWrapper<T> implements Handler<Message<T>> {
 			segment.end();
 			segment = null;
 		}
-		delegate.handle(event);
+		if(delegate != null) {
+			delegate.handle(event);
+		}
 	}
 
 }

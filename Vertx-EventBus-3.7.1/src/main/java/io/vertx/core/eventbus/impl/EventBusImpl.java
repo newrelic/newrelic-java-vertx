@@ -7,6 +7,7 @@ import com.newrelic.api.agent.Segment;
 import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
+import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
@@ -37,7 +38,7 @@ public abstract class EventBusImpl implements EventBus {
 	@Trace
 	public <T> MessageConsumer<T> localConsumer(String address, Handler<Message<T>> handler) {
 		return Weaver.callOriginal();
-	}
+	}	
 
 	@Trace(dispatcher=true)
 	public <T> EventBus send(String address, Object message, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
@@ -74,13 +75,13 @@ public abstract class EventBusImpl implements EventBus {
 		Weaver.callOriginal();
 	}
 
-	@Trace(excludeFromTransactionTrace=true)
+	@Trace
 	private <T> void deliverToHandler(MessageImpl msg, HandlerHolder<T> holder) {
-		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverToHandler"});
-
-		if(holder.token == null) {
-			holder.token = NewRelic.getAgent().getTransaction().getToken();
-		}
+//		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverToHandler"});
+//
+//		if(holder.token == null) {
+//			holder.token = NewRelic.getAgent().getTransaction().getToken();
+//		}
 		Weaver.callOriginal();
 	}
 
@@ -107,33 +108,16 @@ public abstract class EventBusImpl implements EventBus {
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","sendReply"});
 		Weaver.callOriginal();
 	}
-	
+
 	@Weave
 	protected abstract static class OutboundDeliveryContext<T> implements DeliveryContext<T> {
+		public final DeliveryOptions options = Weaver.callOriginal();
 		
-		@Trace(dispatcher=true)
-		public void next() {
-			Weaver.callOriginal();
-		}
+		@NewField
+		public Token token = null;
 		
-		@Trace(dispatcher=true)
-		public boolean send() {	
-			return Weaver.callOriginal();
+		private OutboundDeliveryContext(MessageImpl message, DeliveryOptions options, HandlerRegistration<T> handlerRegistration, MessageImpl replierMessage) {
+			
 		}
 	}
-
-	@Weave
-	protected abstract static class InboundDeliveryContext<T> implements DeliveryContext<T> {
-		
-		@Trace(dispatcher=true)
-		public void next() {
-			Weaver.callOriginal();
-		}
-		
-		@Trace(dispatcher=true)
-		public boolean send() {	
-			return Weaver.callOriginal();
-		}
-	}
-
 }

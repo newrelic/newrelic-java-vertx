@@ -35,15 +35,18 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 	}
 
 	public MessageConsumer<T> handler(Handler<Message<T>> handler)  {
-		if(!NRMessageHandlerWrapper.class.isInstance(handler)) {
-			NRMessageHandlerWrapper<T> wrapper = new NRMessageHandlerWrapper<T>(handler, NewRelic.getAgent().getTransaction().getToken(), NewRelic.getAgent().getTransaction().startSegment("MessageHandler-HandlerRegistration"));
+		if(handler == null) {
+			NRMessageHandlerWrapper<T> wrapper = new NRMessageHandlerWrapper<T>(handler, token, null);
+			handler = wrapper;
+		} else if(!(handler instanceof NRMessageHandlerWrapper)){
+			NRMessageHandlerWrapper<T> wrapper = new NRMessageHandlerWrapper<T>(handler, token, null);
 			handler = wrapper;
 		}
 		return Weaver.callOriginal();
 	}
 
 
-	@Trace(async=true)
+	@Trace(dispatcher=true)
 	public void handle(Message<T> message) {
 		if(ClusteredMessage.class.isInstance(message)) {
 			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
@@ -78,7 +81,11 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 
 	@Trace(dispatcher=true)
 	public synchronized void completionHandler(Handler<AsyncResult<Void>> completionHandler) {
-		if(!NRCompletionWrapper.class.isInstance(completionHandler)) {
+		if(completionHandler == null) {
+			NRCompletionWrapper<Void> wrapper = new NRCompletionWrapper<Void>(completionHandler,NewRelic.getAgent().getTransaction().getToken(),NewRelic.getAgent().getTransaction().startSegment("CompletionHandler"));
+			completionHandler = wrapper;
+		}
+		else if(!NRCompletionWrapper.class.isInstance(completionHandler)) {
 			NRCompletionWrapper<Void> wrapper = new NRCompletionWrapper<Void>(completionHandler,NewRelic.getAgent().getTransaction().getToken(),NewRelic.getAgent().getTransaction().startSegment("CompletionHandler"));
 			completionHandler = wrapper;
 		}

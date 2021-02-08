@@ -3,75 +3,100 @@ package io.vertx.core.impl;
 import java.util.concurrent.Executor;
 
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 import com.nr.instrumentation.vertx.NRTaskWrapper;
 
+import io.netty.util.concurrent.Promise;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.spi.metrics.PoolMetrics;
 
+@SuppressWarnings("rawtypes")
 @Weave(type=MatchType.BaseClass)
 abstract class ContextImpl {
+	
+	<T> void executeBlocking(Handler<Promise<T>> blockingCodeHandler,
+		      Handler<AsyncResult<T>> resultHandler,
+		      Executor exec, TaskQueue queue, PoolMetrics metrics) {
+		Token token = NewRelic.getAgent().getTransaction().getToken();
+		if(!NRTaskWrapper.class.isInstance(blockingCodeHandler)) {
+			NRTaskWrapper<Promise<T>> wrapper1 = new NRTaskWrapper<Promise<T>>(blockingCodeHandler, token);
+			wrapper1.name = "CodeHandler";
+			blockingCodeHandler = wrapper1;
+		}
+		if(!NRTaskWrapper.class.isInstance(resultHandler)) {
+			NRTaskWrapper<AsyncResult<T>>  wrapper2 = new NRTaskWrapper<AsyncResult<T>>(resultHandler, token);
+			wrapper2.name = "ReplyHandler";
+			resultHandler = wrapper2;
+		}
+		Weaver.callOriginal();
+	}
 
-	@SuppressWarnings("rawtypes")
-	@Trace
-	<T> void executeBlocking(Handler<Promise<T>> blockingCodeHandler, Handler<AsyncResult<T>> resultHandler,Executor exec, TaskQueue queue, PoolMetrics metrics) {
-		if(queue != null) {
-			NewRelic.getAgent().getTracedMethod().setMetricName("Custom","ContextImpl",getClass().getSimpleName(),"executeBlocking","queue");
-		} else {
-			NewRelic.getAgent().getTracedMethod().setMetricName("Custom","ContextImpl",getClass().getSimpleName(),"executeBlocking","executor");
+	@Trace(excludeFromTransactionTrace=true)
+	public void runOnContext(Handler<Void> hTask) {
+		Weaver.callOriginal();
+	}
+	
+	
+	@Trace(async=true,excludeFromTransactionTrace=true)
+	public final <T> void executeFromIO(T value, Handler<T> task) { 
+		if(NRTaskWrapper.class.isInstance(task)) {
+			NRTaskWrapper<T> wrapper = (NRTaskWrapper<T>)task;
+			Token token = wrapper.getToken();
+			if(token != null) {
+				token.link();
+			}
 		}
 		Weaver.callOriginal();
-	}
+	 }
 	
-	
-	@Trace
-	void executeAsync(Handler<Void> task) {
-		NewRelic.getAgent().getTracedMethod().setMetricName("Custom","ContextImpl",getClass().getSimpleName(),"executeAsync");
-		if(!(task instanceof NRTaskWrapper)) {
-			NRTaskWrapper<Void> wrapper = new NRTaskWrapper<Void>(task, NewRelic.getAgent().getTransaction().getToken());
-			task = wrapper;
+	@Trace(async=true,excludeFromTransactionTrace=true)
+	<T> boolean executeTask(T arg, Handler<T> hTask) {
+		if(NRTaskWrapper.class.isInstance(hTask)) {
+			NRTaskWrapper<T> wrapper = (NRTaskWrapper<T>)hTask;
+			Token token = wrapper.getToken();
+			if(token != null) {
+				token.link();
+			}
 		}
-		Weaver.callOriginal();
+		return Weaver.callOriginal();
 	}
 	
-//	@Trace
-//	public void runOnContext(Handler<Void> hTask) {
-//		Token token = NewRelic.getAgent().getTransaction().getToken();
-//		Segment segment = NewRelic.getAgent().getTransaction().startSegment("runOnContext");
-//		if(hTask != null) {
-//			NRTaskHandler wrapper = new NRTaskHandler(token, segment, hTask);
-//			hTask = wrapper;
-//		}
-//		Weaver.callOriginal();
-//	}
-//	
-//	
-//	@Trace
-//	public final <T> void executeFromIO(T value, Handler<T> task) { 
-//		Weaver.callOriginal();
-//	 }
-//	
-	@Trace
-	<T> void execute(T value, Handler<T> task) {
-		NewRelic.getAgent().getTracedMethod().setMetricName("Custom","ContextImpl",getClass().getSimpleName(),"execute");
-		Weaver.callOriginal();
-	}
 	
-//	@Trace(async=true)
-//	<T> boolean executeTask(T arg, Handler<T> hTask) {
-//		if(hTask instanceof NRTaskWrapper) {
-//			NRTaskWrapper<T> wrapper = (NRTaskWrapper<T>)hTask;
-//			Token t = wrapper.getToken();
-//			if(t != null) {
-//				t.link();
-//			}
-//		}
-//		return Weaver.callOriginal();
-//	}
-	
+	@Trace(async=true,excludeFromTransactionTrace=true)
+    private void lambda$executeBlocking$2(PoolMetrics metricsHandler, Object object, Handler handler, Handler resultHandler) {
+		if(NRTaskWrapper.class.isInstance(handler)) {
+			NRTaskWrapper<?> wrapper = (NRTaskWrapper<?>)handler;
+			
+			wrapper.linkAndExpireToken();
+			if(wrapper.name != null) {
+				NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","Context","lamdba-executeblocking",wrapper.name});
+			}
+		} else if(NRTaskWrapper.class.isInstance(resultHandler)) {
+			NRTaskWrapper<?> wrapper = (NRTaskWrapper<?>)handler;
+			
+			wrapper.linkAndExpireToken();
+			if(wrapper.name != null) {
+				NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","Context","lamdba-executeblocking",wrapper.name});
+			}
+		}
+        Weaver.callOriginal();
+    }
+
+	@Trace(async=true,excludeFromTransactionTrace=true)
+    private static void lambda$null$0(Handler handler, AsyncResult result, Void v) {
+		if(NRTaskWrapper.class.isInstance(handler)) {
+			NRTaskWrapper<?> wrapper = (NRTaskWrapper<?>)handler;
+			
+			wrapper.linkAndExpireToken();
+			if(wrapper.name != null) {
+				NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","Context","lamdba-null",wrapper.name});
+			}
+		}
+        Weaver.callOriginal();
+    }
 }

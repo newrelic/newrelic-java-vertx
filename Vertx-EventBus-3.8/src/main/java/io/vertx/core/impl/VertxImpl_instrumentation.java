@@ -16,7 +16,7 @@ import io.vertx.core.Handler;
 @Weave(originalName="io.vertx.core.impl.VertxImpl")
 public abstract class VertxImpl_instrumentation {
 
-	@Trace
+	@Trace(dispatcher=true)
 	public void runOnContext(Handler<Void> task) {
 		Weaver.callOriginal();
 	}
