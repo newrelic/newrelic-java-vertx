@@ -7,6 +7,7 @@ import com.newrelic.api.agent.Segment;
 import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
+import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
@@ -20,7 +21,6 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
 import io.vertx.core.impl.utils.ConcurrentCyclicSequence;
 
@@ -38,8 +38,7 @@ public abstract class EventBusImpl implements EventBus {
 	@Trace
 	public <T> MessageConsumer<T> localConsumer(String address, Handler<Message<T>> handler) {
 		return Weaver.callOriginal();
-	}
-	
+	}	
 
 	@Trace(dispatcher=true)
 	public <T> EventBus send(String address, Object message, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
@@ -50,17 +49,6 @@ public abstract class EventBusImpl implements EventBus {
 			replyHandler = wrapper;
 		}
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","send"});
-		return Weaver.callOriginal();
-	}
-
-	@Trace
-	protected ReplyException deliverMessageLocally(MessageImpl msg) {
-		String address = msg.address();
-		if(!TokenUtils.tempAddress(address)) {
-			NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverMessageLocally",address});
-		} else {
-			NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverMessageLocally","Temp"});
-		}
 		return Weaver.callOriginal();
 	}
 
@@ -89,11 +77,11 @@ public abstract class EventBusImpl implements EventBus {
 
 	@Trace
 	private <T> void deliverToHandler(MessageImpl msg, HandlerHolder<T> holder) {
-		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverToHandler"});
-
-		if(holder.token == null) {
-			holder.token = NewRelic.getAgent().getTransaction().getToken();
-		}
+//		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","deliverToHandler"});
+//
+//		if(holder.token == null) {
+//			holder.token = NewRelic.getAgent().getTransaction().getToken();
+//		}
 		Weaver.callOriginal();
 	}
 
@@ -123,6 +111,13 @@ public abstract class EventBusImpl implements EventBus {
 
 	@Weave
 	protected abstract static class OutboundDeliveryContext<T> implements DeliveryContext<T> {
+		public final DeliveryOptions options = Weaver.callOriginal();
 		
+		@NewField
+		public Token token = null;
+		
+		private OutboundDeliveryContext(MessageImpl message, DeliveryOptions options, HandlerRegistration<T> handlerRegistration, MessageImpl replierMessage) {
+			
+		}
 	}
 }
