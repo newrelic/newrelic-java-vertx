@@ -7,8 +7,8 @@ dependencies {
    implementation 'io.vertx:vertx-core:3.8.0'
 
    // New Relic Java Agent dependencies
-   implementation 'com.newrelic.agent.java:newrelic-agent:6.0.0'
-   implementation 'com.newrelic.agent.java:newrelic-api:6.0.0'
+   implementation 'com.newrelic.agent.java:newrelic-agent:6.4.0'
+   implementation 'com.newrelic.agent.java:newrelic-api:6.4.0'
 
    implementation fileTree(include: ['*.jar'], dir: '../libs')
 }
@@ -24,7 +24,7 @@ jar {
 
 verifyInstrumentation {
   	passes ('io.vertx:vertx-core:[3.8.0,3.9.4]' ) {
-  	  compile('com.newrelic.agent.java:newrelic-agent:6.0.0')
+  	  compile('com.newrelic.agent.java:newrelic-agent:6.4.0')
   	}
   	excludeRegex '.*SNAPSHOT'
   	excludeRegex '.*milestone.*'

@@ -18,6 +18,7 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.NRMessageHandlerWrapper;
 import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
 import com.nr.instrumentation.vertx.TokenUtils;
@@ -86,9 +87,8 @@ public abstract class EventBusImpl implements EventBus {
 			Token token = NewRelic.getAgent().getTransaction().getToken();
 			Integer hashCode = token.hashCode();
 			MultiMap msgheaders = msg.headers();
-
-			msgheaders.add(TokenUtils.TOKENHASH, hashCode.toString());
-			msg.headers = msgheaders;
+			MessageHeaders headersWrapper = new MessageHeaders(msgheaders);
+			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(headersWrapper);
 
 			TokenUtils.addToken(hashCode.toString(), token);
 		}

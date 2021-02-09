@@ -12,6 +12,7 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
 
 @Weave(type=MatchType.BaseClass)
@@ -34,7 +35,8 @@ public abstract class MessageImpl<U, V> {
 				token.link();
 			}
 		}
-		headers.add("NR-Header", NewRelic.getAgent().getTransaction().getRequestMetadata());
+		MessageHeaders msgHeaders = new MessageHeaders(headers);
+		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		Weaver.callOriginal();
 	}
 	
