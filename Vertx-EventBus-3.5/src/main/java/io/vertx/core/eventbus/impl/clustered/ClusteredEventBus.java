@@ -14,6 +14,7 @@ import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.TokenUtils;
 
 @Weave
@@ -27,9 +28,8 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 		if(ClusteredMessage.class.isInstance(message)) {
 			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
 			MultiMap headers = cMessage.headers();
-			String metadata = NewRelic.getAgent().getTransaction().getRequestMetadata();
-			headers.add(TokenUtils.REQUESTMETADATA, metadata);
-			
+			MessageHeaders msgHeaders = new MessageHeaders(headers);
+			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		}
 		Weaver.callOriginal();
 	}
@@ -39,8 +39,8 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 		if(!replyDest.equals(serverID)) {
 			Message<?> message = sendContext.message();
 			MultiMap headers = message.headers();
-			String metadata = NewRelic.getAgent().getTransaction().getResponseMetadata();
-			headers.add(TokenUtils.RESPONSEMETADATA, metadata);
+			MessageHeaders msgHeaders = new MessageHeaders(headers);
+			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		}
 		Weaver.callOriginal();
 	}
@@ -48,6 +48,12 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 	@SuppressWarnings("rawtypes")
 	@Trace
 	private void sendRemote(ServerID theServerID, MessageImpl message) {
+		if(ClusteredMessage.class.isInstance(message)) {
+			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
+			MultiMap headers = cMessage.headers();
+			MessageHeaders msgHeaders = new MessageHeaders(headers);
+			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
+		}
 		String address = message.address();
 		if(TokenUtils.tempAddress(address)) {
 			address = "Temp";

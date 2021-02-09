@@ -1,13 +1,13 @@
 package io.vertx.core.eventbus.impl;
 
-import java.util.logging.Level;
-
 import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TransportType;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.NRCompletionWrapper;
 import com.nr.instrumentation.vertx.NRMessageHandlerWrapper;
 import com.nr.instrumentation.vertx.TokenUtils;
@@ -48,17 +48,8 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 		if(ClusteredMessage.class.isInstance(message)) {
 			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
 			MultiMap headers = cMessage.headers();
-			if(headers.contains(TokenUtils.REQUESTMETADATA)) {
-				String metaData = headers.get(TokenUtils.REQUESTMETADATA);
-				NewRelic.getAgent().getLogger().log(Level.FINE, "Header value for {0} was {1}", TokenUtils.REQUESTMETADATA,metaData);
-				if(metaData != null && !metaData.isEmpty()) {
-					if(TokenUtils.distributedTracingEnabled) {
-						NewRelic.getAgent().getTransaction().acceptDistributedTracePayload(metaData);
-					} else {
-						NewRelic.getAgent().getTransaction().processRequestMetadata(metaData);
-					}
-				}
-			}
+			MessageHeaders msgHeaders = new MessageHeaders(headers);
+			NewRelic.getAgent().getTransaction().acceptDistributedTraceHeaders(TransportType.Other, msgHeaders);
 		}
 		String msgAddress = message.address();
 		boolean temp = TokenUtils.tempAddress(msgAddress);
