@@ -5,6 +5,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.CaseInsensitiveHeaders;
 
 import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Token;
@@ -21,12 +22,10 @@ public abstract class MessageImpl<U, V> {
 	public abstract String address();
 	
 	public abstract String replyAddress();
-	
-	protected MultiMap headers = Weaver.callOriginal();
-	
+		
 	public abstract MultiMap headers();
 	
-	@Trace(async=true)
+	@Trace(dispatcher=true)
 	public <R> void reply(Object message, DeliveryOptions options, Handler<AsyncResult<Message<R>>> replyHandler) {
 		if(NRWrappedReplyHandler.class.isInstance(replyHandler)) {
 			NRWrappedReplyHandler<R> wrapper = (NRWrappedReplyHandler<R>)replyHandler;
@@ -35,8 +34,21 @@ public abstract class MessageImpl<U, V> {
 				token.link();
 			}
 		}
+		MultiMap headers = options.getHeaders();
+		if(headers == null) {
+			headers = new CaseInsensitiveHeaders();
+		}
 		MessageHeaders msgHeaders = new MessageHeaders(headers);
 		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
+		options.setHeaders(msgHeaders.getMultimap());
+		String replyAddress = replyAddress();
+		if(replyAddress != null && !replyAddress.isEmpty()) {
+			NewRelic.getAgent().getTracedMethod().addCustomAttribute("ReplyAddress", replyAddress());
+		}
+		String address = address();
+		if(address != null && !address.isEmpty()) {
+			NewRelic.getAgent().getTracedMethod().addCustomAttribute("address", address);
+		}
 		Weaver.callOriginal();
 	}
 	

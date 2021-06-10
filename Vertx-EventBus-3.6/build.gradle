@@ -10,6 +10,10 @@ dependencies {
    // New Relic Java Agent dependencies
    implementation 'com.newrelic.agent.java:newrelic-agent:6.4.0'
    implementation 'com.newrelic.agent.java:newrelic-api:6.4.0'
+   
+   testImplementation 'org.nanohttpd:nanohttpd:2.3.1'
+   testImplementation 'io.vertx:vertx-hazelcast:3.6.0'
+   
 }
 
 jar {
@@ -22,7 +26,9 @@ jar {
 }
 
 verifyInstrumentation {
-  	passes 'io.vertx:vertx-core:[3.6.0,3.7.1)'
+  	passes ('io.vertx:vertx-core:[3.6.0,3.7.1)') {
+  	  compile('com.newrelic.agent.java:newrelic-agent:6.4.0')
+  	}
    	excludeRegex '.*SNAPSHOT.*'
   	excludeRegex '.*milestone.*'
  	excludeRegex '.*CR.*'

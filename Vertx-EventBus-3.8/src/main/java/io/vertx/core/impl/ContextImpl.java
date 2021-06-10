@@ -1,6 +1,7 @@
 package io.vertx.core.impl;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 
 import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Token;
@@ -19,6 +20,7 @@ import io.vertx.core.spi.metrics.PoolMetrics;
 @Weave(type=MatchType.BaseClass)
 abstract class ContextImpl {
 	
+	@Trace
 	<T> void executeBlocking(Handler<Promise<T>> blockingCodeHandler,
 		      Handler<AsyncResult<T>> resultHandler,
 		      Executor exec, TaskQueue queue, PoolMetrics metrics) {
@@ -65,28 +67,24 @@ abstract class ContextImpl {
 		}
 		return Weaver.callOriginal();
 	}
-	
-	
-	@Trace(async=true,excludeFromTransactionTrace=true)
-    private void lambda$executeBlocking$2(PoolMetrics metricsHandler, Object object, Handler handler, Handler resultHandler) {
-		if(NRTaskWrapper.class.isInstance(handler)) {
-			NRTaskWrapper<?> wrapper = (NRTaskWrapper<?>)handler;
-			
-			wrapper.linkAndExpireToken();
-			if(wrapper.name != null) {
-				NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","Context","lamdba-executeblocking",wrapper.name});
-			}
-		} else if(NRTaskWrapper.class.isInstance(resultHandler)) {
-			NRTaskWrapper<?> wrapper = (NRTaskWrapper<?>)handler;
-			
-			wrapper.linkAndExpireToken();
-			if(wrapper.name != null) {
-				NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","Context","lamdba-executeblocking",wrapper.name});
+
+	@Trace
+	void executeAsync(Handler<Void> task) {
+		Exception e = new Exception("call to executeAsync");
+		NewRelic.getAgent().getLogger().log(Level.FINE, e, "Enter {0}.executeAsync({1})",getClass().getName(),task);
+		if(!(task instanceof NRTaskWrapper) ) {
+			Token t = NewRelic.getAgent().getTransaction().getToken();
+			if(t != null && t.isActive()) {
+				NRTaskWrapper<Void> wrapper = new NRTaskWrapper<Void>(task, t);
+				task = wrapper;
+			} else if(t != null) {
+				t.expire();
+				t = null;
 			}
 		}
-        Weaver.callOriginal();
-    }
-
+		Weaver.callOriginal();
+	}
+	
 	@Trace(async=true,excludeFromTransactionTrace=true)
     private static void lambda$null$0(Handler handler, AsyncResult result, Void v) {
 		if(NRTaskWrapper.class.isInstance(handler)) {

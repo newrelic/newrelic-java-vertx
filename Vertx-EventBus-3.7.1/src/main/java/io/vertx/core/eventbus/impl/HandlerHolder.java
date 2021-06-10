@@ -16,8 +16,7 @@ public abstract class HandlerHolder<T> {
 	
 	private final HandlerRegistration<T> handler = Weaver.callOriginal();
 
-	public HandlerHolder(HandlerRegistration<T> handler, boolean replyHandler, boolean localOnly,
-            Context context)  {
+	public HandlerHolder(HandlerRegistration<T> handler, boolean replyHandler, boolean localOnly,Context context)  {
 		
 	}
 	

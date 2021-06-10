@@ -2,26 +2,22 @@ package com.nr.instrumentation.vertx;
 
 import com.newrelic.agent.bridge.AgentBridge;
 import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Segment;
-import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TransportType;
 
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.Message;
 
 public class NRMessageHandlerWrapper<T> implements Handler<Message<T>> {
 	
 	private Handler<Message<T>> delegate = null;
-	private Token token = null;
-	private Segment segment = null;
 	
 	private static boolean isTransformed = false;
 	
 	
-	public NRMessageHandlerWrapper(Handler<Message<T>> d,Token t, Segment s) {
+	public NRMessageHandlerWrapper(Handler<Message<T>> d) {
 		delegate = d;
-		token = t;
-		segment = s;
 		if(!isTransformed) {
 			isTransformed = true;
 			AgentBridge.instrumentation.retransformUninstrumentedClass(getClass());
@@ -29,16 +25,15 @@ public class NRMessageHandlerWrapper<T> implements Handler<Message<T>> {
 	}
 
 	@Override
-	@Trace(async=true)
+	@Trace(dispatcher=true)
 	public void handle(Message<T> event) {
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","MessageHandler","handle"});
-		if(token != null) {
-			token.linkAndExpire();
-			token = null;
-		}
-		if(segment != null) {
-			segment.end();
-			segment = null;
+		if(event != null) {
+			MultiMap headers = event.headers();
+			if(headers != null) {
+				MessageHeaders msgHeaders = new MessageHeaders(headers);
+				NewRelic.getAgent().getTransaction().acceptDistributedTraceHeaders(TransportType.Other, msgHeaders);
+			}
 		}
 		if(delegate != null) {
 			delegate.handle(event);
