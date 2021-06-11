@@ -16,8 +16,8 @@ dependencies {
 jar {
   manifest {
     attributes 'Implementation-Title': 'Vertx-EventBus-3.8.Vertx-EventBus-3.8'
-    attributes 'Implementation-Vendor': 'New Relic'
-    attributes 'Implementation-Vendor-Id': 'com.newrelic'
+    attributes 'Implementation-Vendor': 'New Relic Labs'
+    attributes 'Implementation-Vendor-Id': 'com.newrelic.Labs'
     attributes 'Implementation-Version': 1.0
   }
 }
