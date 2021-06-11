@@ -17,13 +17,12 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.EventBusImpl;
 import io.vertx.core.eventbus.impl.MessageImpl;
-import io.vertx.core.net.impl.ServerID;
-import io.vertx.core.spi.cluster.ChoosableIterable;
+import io.vertx.core.eventbus.impl.OutboundDeliveryContext;
 
 @Weave
 public abstract class ClusteredEventBus extends EventBusImpl {
 	
-	private ServerID serverID = Weaver.callOriginal();
+	private String nodeId = Weaver.callOriginal();
 	
 	@Trace(dispatcher=true)
 	protected <T> void sendOrPub(OutboundDeliveryContext<T> sendContext) {
@@ -39,20 +38,10 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 		Weaver.callOriginal();
 	}
 
-	
-	@Trace(async=true)
-	private <T> void sendToSubs(ChoosableIterable<ClusterNodeInfo> subs, OutboundDeliveryContext<T> sendContext) {
-		if(sendContext.token != null) {
-			sendContext.token.linkAndExpire();
-			sendContext.token = null;
-		}
 		
-		Weaver.callOriginal();
-	}
-	
 	@Trace
-	private <T> void clusteredSendReply(ServerID replyDest, OutboundDeliveryContext<T> sendContext) {
-		if(!replyDest.equals(serverID)) {
+	private <T> void clusteredSendReply(String replyDest, OutboundDeliveryContext<T> sendContext) {
+		if(!replyDest.equals(nodeId)) {
 			Message<?> message = sendContext.message();
 			MultiMap headers = message.headers();
 			MessageHeaders msgHeaders = new MessageHeaders(headers);
@@ -63,19 +52,19 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 	
 	@SuppressWarnings("rawtypes")
 	@Trace(dispatcher=true)
-	private void sendRemote(ServerID theServerID, MessageImpl message) {
+	private void sendRemote(OutboundDeliveryContext<?> sendContext, String remoteNodeId, MessageImpl message) {
 		TracedMethod traced = NewRelic.getAgent().getTracedMethod();
 		String address = message.address();
 		HashMap<String, Object> attributes = new HashMap<String, Object>();
-		String host = theServerID.host;
-		int port = theServerID.port;
 		attributes.put("Address", address);
-		attributes.put("Server-Host", host);
-		attributes.put("Server-Port", port);
+		attributes.put("RemoteNodeID", remoteNodeId);
+		
 		
 		traced.addCustomAttributes(attributes);
-		address = VertxUtils.normalize(address);
-		URI uri = URI.create("vertx://"+host+":"+port+"/"+address);
+		if(VertxUtils.tempAddress(address)) {
+			address = "Temp";
+		}
+		URI uri = URI.create("vertx://"+remoteNodeId+"/"+address);
 		GenericParameters params = GenericParameters.library("Vertx").uri(uri).procedure("sendRemote").build();
 		traced.reportAsExternal(params);
 		Weaver.callOriginal();

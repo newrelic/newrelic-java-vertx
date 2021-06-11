@@ -5,6 +5,7 @@ import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.TransactionNamePriority;
 import com.newrelic.api.agent.TransportType;
+import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
@@ -17,24 +18,19 @@ import com.nr.instrumentation.vertx.VertxUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.impl.ContextInternal;
-import io.vertx.core.spi.metrics.EventBusMetrics;
 
-@Weave
-public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Handler<Message<T>> {
+@Weave(type=MatchType.BaseClass)
+public abstract class HandlerRegistration<T>  {
 	
 	@NewField
 	public Token token = null;
 	
 	private final String address = Weaver.callOriginal();
 
-	@SuppressWarnings("rawtypes")
-	public HandlerRegistration(Vertx vertx, EventBusMetrics metrics, EventBusImpl eventBus, String address,
-			String repliedAddress, boolean localOnly,
-			Handler<AsyncResult<Message<T>>> asyncResultHandler, long timeout) 
+	public HandlerRegistration(ContextInternal context, EventBusImpl bus, String address, boolean src)
 	{
 
 	}
@@ -53,7 +49,12 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 
 	@Trace(dispatcher=true)
 	public void handle(Message<T> message) {
-		NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage",VertxUtils.normalize(address));
+
+		if(VertxUtils.tempAddress(address)) {
+			NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage","Temp");
+		} else {
+			NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage",address);
+		}
 		MultiMap headers = message.headers();
 		MessageHeaders msgHeaders = new MessageHeaders(headers);
 		NewRelic.getAgent().getTransaction().acceptDistributedTraceHeaders(TransportType.Other, msgHeaders);
