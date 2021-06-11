@@ -1,14 +1,17 @@
 package io.vertx.core.eventbus.impl.clustered;
 
 import java.net.URI;
+import java.util.HashMap;
 
 import com.newrelic.api.agent.GenericParameters;
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TracedMethod;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 import com.nr.instrumentation.vertx.MessageHeaders;
-import com.nr.instrumentation.vertx.TokenUtils;
+import com.nr.instrumentation.vertx.VertxUtils;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.Message;
@@ -21,18 +24,29 @@ import io.vertx.core.spi.cluster.ChoosableIterable;
 public abstract class ClusteredEventBus extends EventBusImpl {
 	
 	private ServerID serverID = Weaver.callOriginal();
+	
+	@Trace(dispatcher=true)
+	protected <T> void sendOrPub(OutboundDeliveryContext<T> sendContext) {
+		if (!sendContext.options.isLocalOnly()) {
+			Token token = NewRelic.getAgent().getTransaction().getToken();
+			if(token != null && token.isActive()) {
+				sendContext.token = token;
+			} else if(token != null) {
+				token.expire();
+				token = null;
+			}
+		}
+		Weaver.callOriginal();
+	}
 
 	
-	@Trace
+	@Trace(async=true)
 	private <T> void sendToSubs(ChoosableIterable<ClusterNodeInfo> subs, OutboundDeliveryContext<T> sendContext) {
-		Message<?> message = sendContext.message();
-		if(ClusteredMessage.class.isInstance(message)) {
-			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
-			MultiMap headers = cMessage.headers();
-			MessageHeaders msgHeaders = new MessageHeaders(headers);
-			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-			
+		if(sendContext.token != null) {
+			sendContext.token.linkAndExpire();
+			sendContext.token = null;
 		}
+		
 		Weaver.callOriginal();
 	}
 	
@@ -48,24 +62,23 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	@Trace
+	@Trace(dispatcher=true)
 	private void sendRemote(ServerID theServerID, MessageImpl message) {
-		if(ClusteredMessage.class.isInstance(message)) {
-			ClusteredMessage<?,?> cMessage = (ClusteredMessage<?,?>)message;
-			MultiMap headers = cMessage.headers();
-			MessageHeaders msgHeaders = new MessageHeaders(headers);
-			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-			
-		}
+		TracedMethod traced = NewRelic.getAgent().getTracedMethod();
 		String address = message.address();
-		if(TokenUtils.tempAddress(address)) {
-			address = "Temp";
-		}
+		HashMap<String, Object> attributes = new HashMap<String, Object>();
 		String host = theServerID.host;
 		int port = theServerID.port;
+		attributes.put("Address", address);
+		attributes.put("Server-Host", host);
+		attributes.put("Server-Port", port);
+		
+		
+		traced.addCustomAttributes(attributes);
+		address = VertxUtils.normalize(address);
 		URI uri = URI.create("vertx://"+host+":"+port+"/"+address);
 		GenericParameters params = GenericParameters.library("Vertx").uri(uri).procedure("sendRemote").build();
-		NewRelic.getAgent().getTracedMethod().reportAsExternal(params);
+		traced.reportAsExternal(params);
 		Weaver.callOriginal();
 	}
 }

@@ -6,6 +6,7 @@ import com.newrelic.api.agent.HeaderType;
 import com.newrelic.api.agent.Headers;
 
 import io.vertx.core.MultiMap;
+import io.vertx.core.http.CaseInsensitiveHeaders;
 
 public class MessageHeaders implements Headers {
 	
@@ -32,12 +33,17 @@ public class MessageHeaders implements Headers {
 
 	@Override
 	public void setHeader(String name, String value) {
-		headers.set(name, value);
+		if(headers != null) {
+			headers = headers.set(name, value);
+		} else {
+			headers = new CaseInsensitiveHeaders();
+			headers.add(name, value);
+		}
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		headers.add(name, value);
+		headers = headers.add(name, value);
 	}
 
 	@Override
@@ -50,4 +56,7 @@ public class MessageHeaders implements Headers {
 		return headers.contains(name);
 	}
 
+	public MultiMap getMultimap() {
+		return headers;
+	}
 }

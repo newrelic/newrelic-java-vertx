@@ -12,6 +12,10 @@ dependencies {
    implementation 'com.newrelic.agent.java:newrelic-api:6.4.0'
 
    implementation fileTree(include: ['*.jar'], dir: '../libs')
+   
+   testImplementation 'org.nanohttpd:nanohttpd:2.3.1'
+   testImplementation 'io.vertx:vertx-hazelcast:3.7.1'
+   
 }
 
 jar {
