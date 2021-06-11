@@ -53,12 +53,7 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 
 	@Trace(dispatcher=true)
 	public void handle(Message<T> message) {
-
-		if(VertxUtils.tempAddress(address)) {
-			NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage","Temp");
-		} else {
-			NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage",address);
-		}
+		NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.FRAMEWORK_LOW, false, "EventBus", "HandleMessage",VertxUtils.normalize(address));
 		MultiMap headers = message.headers();
 		MessageHeaders msgHeaders = new MessageHeaders(headers);
 		NewRelic.getAgent().getTransaction().acceptDistributedTraceHeaders(TransportType.Other, msgHeaders);
