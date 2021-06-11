@@ -73,11 +73,8 @@ public abstract class ClusteredEventBus extends EventBusImpl {
 		attributes.put("Server-Host", host);
 		attributes.put("Server-Port", port);
 		
-		
 		traced.addCustomAttributes(attributes);
-		if(VertxUtils.tempAddress(address)) {
-			address = "Temp";
-		}
+		address = VertxUtils.normalize(address);
 		URI uri = URI.create("vertx://"+host+":"+port+"/"+address);
 		GenericParameters params = GenericParameters.library("Vertx").uri(uri).procedure("sendRemote").build();
 		traced.reportAsExternal(params);

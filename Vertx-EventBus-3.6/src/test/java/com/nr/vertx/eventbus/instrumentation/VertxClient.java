@@ -61,7 +61,7 @@ public class VertxClient {
 		}
 
 		Introspector introspector = InstrumentationTestRunner.getIntrospector();
-		int count = introspector.getFinishedTransactionCount(5000);
+		int count = introspector.getFinishedTransactionCount(2500);
 		System.out.println("There are "+count+" transactions");
 		assertEquals(count, 1);
 		Collection<String> transactionNames = introspector.getTransactionNames();
@@ -188,7 +188,7 @@ public class VertxClient {
 		
 
 		Introspector introspector = InstrumentationTestRunner.getIntrospector();
-		int count = introspector.getFinishedTransactionCount(5000);
+		int count = introspector.getFinishedTransactionCount(2500);
 		System.out.println("There are "+count+" transactions for send and receive");
 		assertEquals(count, 3);
 		
