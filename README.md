@@ -1,9 +1,25 @@
 [![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
 
+
+![GitHub forks](https://img.shields.io/github/forks/newrelic-experimental/newrelic-java-vertx?style=social)
+![GitHub stars](https://img.shields.io/github/stars/newrelic-experimental/newrelic-java-vertx?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/newrelic-experimental/newrelic-java-vertx?style=social)
+
+![GitHub all releases](https://img.shields.io/github/downloads/newrelic-experimental/newrelic-java-vertx/total)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/newrelic-experimental/newrelic-java-vertx)
+![GitHub last commit](https://img.shields.io/github/last-commit/newrelic-experimental/newrelic-java-vertx)
+![GitHub Release Date](https://img.shields.io/github/release-date/newrelic-experimental/newrelic-java-vertx)
+
+
+![GitHub issues](https://img.shields.io/github/issues/newrelic-experimental/newrelic-java-vertx)
+![GitHub issues closed](https://img.shields.io/github/issues-closed/newrelic-experimental/newrelic-java-vertx)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/newrelic-experimental/newrelic-java-vertx)
+![GitHub pull requests closed](https://img.shields.io/github/issues-pr-closed/newrelic-experimental/newrelic-java-vertx) 
+
 # New Relic Java Instrumentation for Vert.x Event Bus
 
 Provides instrumentation code for monitoring the Vert.x Event Bus.  Tracks flow across the event bus.
- 
+
  Vertx-Verticles provides instrumentation for classes extends AbstractVerticle.  It does this by instrumenting each class that is deployed.  It tracks all methods except those defined by AbstractVerticle. Methods not tracked: 	start, stop, rxStart, rxStop, config, deploymentID, getVertx, init, processArgs.
 
 
@@ -14,11 +30,11 @@ To install the instrumentation:
 2. In the New Relic Java Agent directory, create a directory named extensions if it does not already exist.
 3. Copy the downloaded jar files into the extensions directory
 4. Restart the Vert.x instance.  
-    
+
 ## Getting Started
-   
+
 ## Usage
-   
+
 ## Building
 
 If you make changes to the instrumentation code and need to build the instrumentation jars, follow these steps
@@ -26,7 +42,7 @@ If you make changes to the instrumentation code and need to build the instrument
 2. Build one or all of the jars.   
   a. To build one jar, run the command:  gradlew _moduleName_:clean  _moduleName_:install    
   b. To build all jars, run the command: gradlew clean install
-   
+
 ## Testing
 
 Not currently supported.  Will be supported in the future
@@ -42,7 +58,7 @@ see https://github.com/newrelic/newrelic-gradle-verify-instrumentation for more 
 > Vertx-EventBus-3.7.1 supports Vert.x version 3.7.1
 > Vertx-EventBus-3.8 supports Vert.x versions 3.8.x & 3.9.x
 > Vertx-Verticles supports Vert.x versions 3.x beyond 3.5.0
-> 
+>
 
 New Relic hosts and moderates an online forum where customers can interact with New Relic employees as well as other customers to get help and share best practices. Like all official New Relic open source projects, there's a related Community topic in the New Relic Explorers Hub. You can find this project's topic/threads here:
 
