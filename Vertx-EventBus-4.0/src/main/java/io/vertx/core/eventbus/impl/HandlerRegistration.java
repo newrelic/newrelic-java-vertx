@@ -17,38 +17,23 @@ import com.nr.instrumentation.vertx.VertxUtils;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.impl.ContextInternal;
-import io.vertx.core.spi.metrics.EventBusMetrics;
 
 @Weave
-public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Handler<Message<T>> {
+public abstract class HandlerRegistration<T>  {
 	
 	@NewField
 	public Token token = null;
 	
 	private final String address = Weaver.callOriginal();
 
-	@SuppressWarnings("rawtypes")
-	public HandlerRegistration(Vertx vertx, EventBusMetrics metrics, EventBusImpl eventBus, String address,
-			String repliedAddress, boolean localOnly,
-			Handler<AsyncResult<Message<T>>> asyncResultHandler, long timeout) 
+	HandlerRegistration(ContextInternal context,EventBusImpl bus,String address,boolean src) 
 	{
 
 	}
 
-	public MessageConsumer<T> handler(Handler<Message<T>> handler)  {
-		if(handler == null) {
-			NRMessageHandlerWrapper<T> wrapper = new NRMessageHandlerWrapper<T>(handler);
-			handler = wrapper;
-		} else if(!(handler instanceof NRMessageHandlerWrapper)){
-			NRMessageHandlerWrapper<T> wrapper = new NRMessageHandlerWrapper<T>(handler);
-			handler = wrapper;
-		}
-		return Weaver.callOriginal();
-	}
 
 
 	@Trace(dispatcher=true)
@@ -108,7 +93,7 @@ public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Hand
 	}
 
 	
-	@Trace
+	@Trace(dispatcher=true)
 	public synchronized MessageConsumer<T> fetch(long amount) {
 		NewRelic.getAgent().getTracedMethod().addCustomAttribute("Handler Address", address);
 		

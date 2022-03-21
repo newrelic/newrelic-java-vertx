@@ -70,6 +70,8 @@ abstract class ContextImpl {
 
 	@Trace
 	void executeAsync(Handler<Void> task) {
+		Exception e = new Exception("call to executeAsync");
+		NewRelic.getAgent().getLogger().log(Level.FINE, e, "Enter {0}.executeAsync({1})",getClass().getName(),task);
 		if(!(task instanceof NRTaskWrapper) ) {
 			Token t = NewRelic.getAgent().getTransaction().getToken();
 			if(t != null && t.isActive()) {
