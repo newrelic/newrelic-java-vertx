@@ -12,13 +12,15 @@ dependencies {
 
    implementation fileTree(include: ['*.jar'], dir: '../libs')
    
+   testImplementation 'junit:junit:4.12'
    testImplementation 'org.nanohttpd:nanohttpd:2.3.1'
-   testImplementation 'io.vertx:vertx-hazelcast:3.8.0'
+   testImplementation 'io.vertx:vertx-hazelcast:3.6.0'
+   testImplementation fileTree(include: ['*.jar'], dir: '../test-lib')
 }
 
 jar {
   manifest {
-    attributes 'Implementation-Title': 'Vertx-EventBus-3.8.Vertx-EventBus-4.0'
+    attributes 'Implementation-Title': 'Vertx-EventBus-4.0'
     attributes 'Implementation-Vendor': 'New Relic Labs'
     attributes 'Implementation-Vendor-Id': 'com.newrelic.Labs'
     attributes 'Implementation-Version': 1.0
@@ -26,7 +28,7 @@ jar {
 }
 
 verifyInstrumentation {
-  	passes ('io.vertx:vertx-core:[4.0.0]' ) {
+  	passes ('io.vertx:vertx-core:[4.0.0,4.2.2)' ) {
   	  compile('com.newrelic.agent.java:newrelic-agent:6.4.0')
   	}
   	excludeRegex '.*SNAPSHOT'

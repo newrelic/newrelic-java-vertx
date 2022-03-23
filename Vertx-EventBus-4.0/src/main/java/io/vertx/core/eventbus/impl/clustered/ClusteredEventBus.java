@@ -5,11 +5,11 @@ import java.util.HashMap;
 
 import com.newrelic.api.agent.GenericParameters;
 import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.TracedMethod;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.nr.instrumentation.vertx.DeliveryOptionsHeaders;
 import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.VertxUtils;
 
@@ -20,35 +20,34 @@ import io.vertx.core.eventbus.impl.OutboundDeliveryContext;
 
 @Weave
 public abstract class ClusteredEventBus {
-	
-	  private String nodeId =Weaver.callOriginal();
 
+	private String nodeId =Weaver.callOriginal();
+	private String getClusterHost() {
+		return Weaver.callOriginal();
+	}
 	
+	 private int getClusterPort() {
+		 return Weaver.callOriginal();
+	 }
+
+
 	@Trace(dispatcher=true)
 	protected <T> void sendOrPub(OutboundDeliveryContext<T> sendContext) {
-		if (!sendContext.options.isLocalOnly()) {
-			Token token = NewRelic.getAgent().getTransaction().getToken();
-			if(token != null && token.isActive()) {
-				sendContext.token = token;
-			} else if(token != null) {
-				token.expire();
-				token = null;
+		if(sendContext != null) {
+			if(sendContext.options != null) {
+				DeliveryOptionsHeaders wrapper = new DeliveryOptionsHeaders(sendContext.options);
+				NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(wrapper);
 			}
 		}
 		Weaver.callOriginal();
 	}
 
 	@Trace(async=true)
-	  private <T> void sendToNode(OutboundDeliveryContext<T> sendContext, String nodeId) {
-			if(sendContext.token != null) {
-				sendContext.token.linkAndExpire();
-				sendContext.token = null;
-			}
-			
-			Weaver.callOriginal();
-		  }
-	
-	
+	private <T> void sendToNode(OutboundDeliveryContext<T> sendContext, String nodeId) {
+		Weaver.callOriginal();
+	}
+
+
 	@Trace
 	private <T> void clusteredSendReply(String replyDest, OutboundDeliveryContext<T> sendContext) { 
 		if(!replyDest.equals(nodeId)) {
@@ -59,7 +58,7 @@ public abstract class ClusteredEventBus {
 		}
 		Weaver.callOriginal();
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Trace(dispatcher=true)
 	private void sendRemote(OutboundDeliveryContext<?> sendContext, String remoteNodeId, MessageImpl message)  {
@@ -68,10 +67,23 @@ public abstract class ClusteredEventBus {
 		HashMap<String, Object> attributes = new HashMap<String, Object>();
 		attributes.put("Address", address);
 		attributes.put("RemoteNodeId", remoteNodeId);
-		
+
 		traced.addCustomAttributes(attributes);
 		address = VertxUtils.normalize(address);
-		URI uri = URI.create("vertx://"+remoteNodeId+"/"+address);
+		String clusterHost = getClusterHost();
+		int clusterPort = getClusterPort();
+		StringBuffer sb = new StringBuffer("vertx://");
+		if(clusterHost != null && !clusterHost.isEmpty()) {
+			sb.append(clusterHost);
+		}
+		if(clusterPort > 0) {
+			sb.append(':');
+			sb.append(clusterPort);
+		}
+		sb.append('/');
+		sb.append(address);
+		
+		URI uri = URI.create(sb.toString());
 		GenericParameters params = GenericParameters.library("Vertx").uri(uri).procedure("sendRemote").build();
 		traced.reportAsExternal(params);
 		Weaver.callOriginal();

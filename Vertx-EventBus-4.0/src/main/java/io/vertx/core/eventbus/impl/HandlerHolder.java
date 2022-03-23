@@ -6,7 +6,7 @@ import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 
-import io.vertx.core.Context;
+import io.vertx.core.impl.ContextInternal;
 
 @Weave
 public abstract class HandlerHolder<T> {
@@ -16,8 +16,7 @@ public abstract class HandlerHolder<T> {
 	
 	private final HandlerRegistration<T> handler = Weaver.callOriginal();
 
-	public HandlerHolder(HandlerRegistration<T> handler, boolean replyHandler, boolean localOnly,
-            Context context)  {
+	public HandlerHolder(HandlerRegistration<T> handler, boolean replyHandler, boolean localOnly, ContextInternal context) {
 		
 	}
 	

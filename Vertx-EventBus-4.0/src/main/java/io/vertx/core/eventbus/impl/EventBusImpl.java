@@ -3,8 +3,6 @@ package io.vertx.core.eventbus.impl;
 import java.util.concurrent.ConcurrentMap;
 
 import com.newrelic.api.agent.NewRelic;
-import com.newrelic.api.agent.Segment;
-import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.TracedMethod;
 import com.newrelic.api.agent.weaver.MatchType;
@@ -12,25 +10,23 @@ import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
 import com.nr.instrumentation.vertx.MessageHeaders;
 import com.nr.instrumentation.vertx.NRCompletionWrapper;
-import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import io.vertx.core.impl.utils.ConcurrentCyclicSequence;
 
 @SuppressWarnings({"rawtypes"})
 @Weave(type=MatchType.BaseClass)
-public abstract class EventBusImpl implements EventBus {
+public abstract class EventBusImpl  {
 
 	protected final ConcurrentMap<String, ConcurrentCyclicSequence<HandlerHolder>> handlerMap = Weaver.callOriginal();
 
 	@Trace(dispatcher=true)
-	public <T> EventBus send(String address, Object message, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+	public <T> EventBus send(String address, Object message, DeliveryOptions options) {
 		MultiMap headers = options.getHeaders();
 		if(headers == null) {
 			options.setHeaders(new HeadersMultiMap());
@@ -39,19 +35,13 @@ public abstract class EventBusImpl implements EventBus {
 		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		options.setHeaders(msgHeaders.getMultimap());
 		
-		if (replyHandler != null) {
-			Token token = NewRelic.getAgent().getTransaction().getToken();
-			Segment segment = NewRelic.getAgent().getTransaction().startSegment("EventBus-Send");
-			NRWrappedReplyHandler<T> wrapper = new NRWrappedReplyHandler<T>(token, segment, replyHandler);
-			replyHandler = wrapper;
-		}
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","send"});
 		NewRelic.getAgent().getTracedMethod().addCustomAttribute("address", address);
 		return Weaver.callOriginal();
 	}
 
-	@Trace(excludeFromTransactionTrace=true)
-	public MessageImpl createMessage(boolean send, String address, MultiMap headers, Object body, String codecName, Handler<AsyncResult<Void>> writeHandler) {
+	@Trace
+	public MessageImpl createMessage(boolean send, String address, MultiMap headers, Object body, String codecName) {
 		
 		MessageHeaders msgHeaders;
 		if(headers != null) {
@@ -78,11 +68,6 @@ public abstract class EventBusImpl implements EventBus {
 		Weaver.callOriginal();
 	}
 
-	@Trace
-	private <T> void deliverToHandler(MessageImpl msg, HandlerHolder<T> holder) {
-		Weaver.callOriginal();
-	}
-
 	@Trace(dispatcher=true)
 	public EventBus publish(String address, Object message, DeliveryOptions options) {
 		MultiMap headers = options.getHeaders();
@@ -98,17 +83,8 @@ public abstract class EventBusImpl implements EventBus {
 		return Weaver.callOriginal();
 	}
 
-	@Trace(dispatcher=true)
-	protected <T> void sendReply(OutboundDeliveryContext<T> sendContext, MessageImpl replierMessage) {
-		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","sendReply"});
-		if(replierMessage != null) {
-			NewRelic.getAgent().getTracedMethod().addCustomAttribute("Replier-Address", replierMessage.address());
-		}
-		Weaver.callOriginal();
-	}
-
-	@Trace(async=true)
-	protected <T> void sendReply(MessageImpl replyMessage, MessageImpl replierMessage, DeliveryOptions options, Handler<AsyncResult<Message<T>>> replyHandler) {
+	@Trace(dispatcher = true)
+	protected <T> void sendReply(MessageImpl replyMessage, DeliveryOptions options, ReplyHandler<T> replyHandler) {
 		
 		MultiMap headers = options.getHeaders();
 		if(headers == null) {
@@ -117,20 +93,11 @@ public abstract class EventBusImpl implements EventBus {
 		MessageHeaders msgHeaders = new MessageHeaders(options.getHeaders());
 		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		options.setHeaders(msgHeaders.getMultimap());
-		if (replyHandler != null) {
-			Token token = NewRelic.getAgent().getTransaction().getToken();
-			Segment segment = NewRelic.getAgent().getTransaction().startSegment("EventBus-SendReply");
-			NRWrappedReplyHandler<T> wrapper = new NRWrappedReplyHandler<T>(token, segment, replyHandler);
-			replyHandler = wrapper;
-		}
 		TracedMethod traced = NewRelic.getAgent().getTracedMethod();
 		
 		traced.setMetricName(new String[] {"Custom","EventBusImpl","sendReply"});
 		if(replyMessage != null && replyMessage.address() != null) {
 			traced.addCustomAttribute("Reply-Address", replyMessage.address());
-		}
-		if(replierMessage != null && replierMessage.address() != null) {
-			traced.addCustomAttribute("Replier-Address", replierMessage.address());
 		}
 		Weaver.callOriginal();
 	}
