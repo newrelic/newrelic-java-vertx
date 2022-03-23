@@ -21,11 +21,14 @@ public class VerticleMethodMatcher implements MethodMatcher {
 		ignoredMethods.add("deploymentID");
 		ignoredMethods.add("getVertx");
 		ignoredMethods.add("init");
+		ignoredMethods.add("<init>");
+		ignoredMethods.add("main");
 		ignoredMethods.add("processArgs");
 	}
 
 	@Override
 	public boolean matches(int access, String name, String desc, Set<String> annotations) {
+		if(name.toLowerCase().contains("lambda")) return false;
 		boolean matches =  !ignoredMethods.contains(name);
 		return matches;
 	}
