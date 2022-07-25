@@ -4,6 +4,5 @@ bin
 .project
 .settings
 *.class
-*.jar
 build
 .classpath
