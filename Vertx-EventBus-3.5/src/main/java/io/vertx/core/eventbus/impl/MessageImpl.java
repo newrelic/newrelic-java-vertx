@@ -11,7 +11,7 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
+import com.newrelic.instrumentation.labs.vertx.NRWrappedReplyHandler;
 
 @Weave(type=MatchType.BaseClass)
 public abstract class MessageImpl<U, V> {

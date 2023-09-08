@@ -9,8 +9,8 @@ import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.MessageHeaders;
-import com.nr.instrumentation.vertx.VertxUtils;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
+import com.newrelic.instrumentation.labs.vertx.VertxUtils;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;

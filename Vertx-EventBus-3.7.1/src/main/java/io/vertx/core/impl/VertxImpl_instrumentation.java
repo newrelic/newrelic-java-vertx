@@ -5,8 +5,8 @@ import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRCompletionWrapper;
-import com.nr.instrumentation.vertx.NRFutureWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRFutureWrapper;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;

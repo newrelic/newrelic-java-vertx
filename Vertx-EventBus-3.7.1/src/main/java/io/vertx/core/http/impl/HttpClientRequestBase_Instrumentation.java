@@ -6,7 +6,7 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.VertxCoreUtil;
+import com.newrelic.instrumentation.labs.vertx.VertxCoreUtil;
 
 import io.vertx.core.MultiMap;
 

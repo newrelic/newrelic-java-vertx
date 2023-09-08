@@ -14,8 +14,8 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRCompletionWrapper;
-import com.nr.instrumentation.vertx.TokenUtils;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionWrapper;
+import com.newrelic.instrumentation.labs.vertx.TokenUtils;
 
 @Weave
 public abstract class HandlerRegistration<T> implements MessageConsumer<T>, Handler<Message<T>> {

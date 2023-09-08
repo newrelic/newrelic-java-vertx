@@ -4,7 +4,7 @@ import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.HttpRequestWrapper;
+import com.newrelic.instrumentation.labs.vertx.HttpRequestWrapper;
 
 import io.netty.handler.codec.http.LastHttpContent;
 import io.vertx.core.Handler;
