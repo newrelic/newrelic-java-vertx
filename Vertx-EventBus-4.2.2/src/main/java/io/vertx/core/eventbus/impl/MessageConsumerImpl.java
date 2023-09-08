@@ -2,7 +2,7 @@ package io.vertx.core.eventbus.impl;
 
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRMessageHandlerWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRMessageHandlerWrapper;
 
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;

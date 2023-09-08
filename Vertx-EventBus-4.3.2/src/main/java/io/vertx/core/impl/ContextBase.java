@@ -7,8 +7,8 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRCompletionListener;
-import com.nr.instrumentation.vertx.NRTaskWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionListener;
+import com.newrelic.instrumentation.labs.vertx.NRTaskWrapper;
 
 import io.netty.util.concurrent.Promise;
 import io.vertx.core.Future;

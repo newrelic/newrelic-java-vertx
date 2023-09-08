@@ -7,7 +7,7 @@ import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.NRRunnableWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRRunnableWrapper;
 
 @Weave
 public abstract class TaskQueue {

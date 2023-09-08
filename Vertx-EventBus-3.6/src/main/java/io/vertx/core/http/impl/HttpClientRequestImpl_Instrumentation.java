@@ -1,13 +1,13 @@
 package io.vertx.core.http.impl;
 
-import static com.nr.instrumentation.vertx.VertxCoreUtil.END;
-import static com.nr.instrumentation.vertx.VertxCoreUtil.VERTX_CLIENT;
+import static com.newrelic.instrumentation.labs.vertx.VertxCoreUtil.END;
+import static com.newrelic.instrumentation.labs.vertx.VertxCoreUtil.VERTX_CLIENT;
 
 import com.newrelic.agent.bridge.AgentBridge;
 import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.OutboundWrapper;
+import com.newrelic.instrumentation.labs.vertx.OutboundWrapper;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;

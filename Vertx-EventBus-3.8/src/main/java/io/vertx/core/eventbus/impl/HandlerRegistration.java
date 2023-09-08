@@ -8,11 +8,11 @@ import com.newrelic.api.agent.TransportType;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.MessageHeaders;
-import com.nr.instrumentation.vertx.NRCompletionWrapper;
-import com.nr.instrumentation.vertx.NRMessageHandlerWrapper;
-import com.nr.instrumentation.vertx.NRTaskWrapper;
-import com.nr.instrumentation.vertx.VertxUtils;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRMessageHandlerWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRTaskWrapper;
+import com.newrelic.instrumentation.labs.vertx.VertxUtils;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

@@ -14,8 +14,8 @@ import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.MessageHeaders;
-import com.nr.instrumentation.vertx.TokenUtils;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
+import com.newrelic.instrumentation.labs.vertx.TokenUtils;
 
 @Weave
 public abstract class ClusteredEventBus extends EventBusImpl {

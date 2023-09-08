@@ -11,9 +11,9 @@ import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.NewField;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.MessageHeaders;
-import com.nr.instrumentation.vertx.NRCompletionWrapper;
-import com.nr.instrumentation.vertx.NRWrappedReplyHandler;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionWrapper;
+import com.newrelic.instrumentation.labs.vertx.NRWrappedReplyHandler;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

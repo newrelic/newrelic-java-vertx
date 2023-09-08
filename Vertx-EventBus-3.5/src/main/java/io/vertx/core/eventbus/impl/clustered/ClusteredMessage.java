@@ -5,7 +5,7 @@ import com.newrelic.api.agent.Trace;
 import com.newrelic.api.agent.TransportType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
-import com.nr.instrumentation.vertx.MessageHeaders;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.impl.CodecManager;
