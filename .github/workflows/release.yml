@@ -54,7 +54,7 @@ jobs:
         id: set_release_version
         run: |
           major_version=1
-          minor_version=0
+          minor_version=4
           patch_revision=1
 
           # Retrieve the latest release tag
