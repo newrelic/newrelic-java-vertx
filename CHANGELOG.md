@@ -1,3 +1,8 @@
+## Version: [v1.4.2](https://github.com/newrelic-experimental/newrelic-java-vertx/releases/tag/v1.4.2) | Created: 2023-11-28
+### Bug Fixes
+- Erge pull request #11 from newrelic-experimental/fix-for-4.5
+
+
 ## Version: [v1.4.1](https://github.com/newrelic-experimental/newrelic-java-vertx/releases/tag/v1.4.1) | Created: 2023-09-22
 ### Bug Fixes
 - Merge pull request #9 from newrelic-experimental/packagefix
