@@ -1,3 +1,9 @@
+## Version: [v1.4.3](https://github.com/newrelic-experimental/newrelic-java-vertx/releases/tag/v1.4.3) | Created: 2023-12-21
+### Bug Fixes
+- Ixes to work with version 4.5.1
+- Erge pull request #12 from newrelic-experimental/fix-for-4.5
+
+
 ## Version: [v1.4.2](https://github.com/newrelic-experimental/newrelic-java-vertx/releases/tag/v1.4.2) | Created: 2023-11-28
 ### Bug Fixes
 - Erge pull request #11 from newrelic-experimental/fix-for-4.5
