@@ -22,4 +22,4 @@ jobs:
       with:
         dependency-graph: generate-and-submit
     - name: Run a build, generating the dependency graph snapshot which will be submitted
-      run: ./gradlew install
+      run: ./gradlew build -x test
