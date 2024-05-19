@@ -4,7 +4,7 @@
 apply plugin: 'java'
 
 dependencies {
-	implementation 'io.vertx:vertx-core:3.5.3'
+	implementation 'io.vertx:vertx-core:3.5.4'
 
    // New Relic Labs Java Agent dependencies
    implementation 'com.newrelic.agent.java:newrelic-agent:6.0.0'
