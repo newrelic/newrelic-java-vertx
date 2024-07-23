@@ -1,3 +1,7 @@
+## Version: [v1.4.5](https://github.com/newrelic/newrelic-java-vertx/releases/tag/v1.4.5) | Created: 2024-07-23
+
+
+
 ## Version: [v1.4.3](https://github.com/newrelic-experimental/newrelic-java-vertx/releases/tag/v1.4.3) | Created: 2023-12-21
 ### Bug Fixes
 - Ixes to work with version 4.5.1
