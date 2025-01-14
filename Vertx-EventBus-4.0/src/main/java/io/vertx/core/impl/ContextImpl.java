@@ -1,16 +1,20 @@
 package io.vertx.core.impl;
 
 import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Segment;
 import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TransactionNamePriority;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.newrelic.instrumentation.labs.vertx.NRCompletionListener;
 import com.newrelic.instrumentation.labs.vertx.NRTaskWrapper;
 
 import io.netty.util.concurrent.Promise;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.impl.future.FutureInternal;
 
 @Weave(type=MatchType.BaseClass)
 abstract class ContextImpl {
@@ -23,7 +27,14 @@ abstract class ContextImpl {
 			wrapper1.name = "CodeHandler";
 			blockingCodeHandler = wrapper1;
 		}
-		return Weaver.callOriginal();
+		Future<T> f = Weaver.callOriginal();
+		if(f instanceof FutureInternal) {
+			Segment segment = NewRelic.getAgent().getTransaction().startSegment("CompletionListener");
+			NRCompletionListener<T> listener = new NRCompletionListener<T>(segment);
+			((FutureInternal<T>)f).addListener(listener);
+		}
+		
+		return f;
 	}
 	
 	@Trace
@@ -53,6 +64,8 @@ abstract class ContextImpl {
 	
 	@Trace(dispatcher = true)
 	<T> void emit(AbstractContext ctx, T argument, Handler<T> task) {
+		String taskType = task != null ? task.getClass().getName() : "Null";
+		NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.CUSTOM_LOW, false, "Context-Emit", "ContextEmit",taskType);
 		Weaver.callOriginal();
 	}
 	

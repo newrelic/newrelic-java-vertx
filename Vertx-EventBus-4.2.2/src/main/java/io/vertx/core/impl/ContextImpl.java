@@ -4,6 +4,7 @@ import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Segment;
 import com.newrelic.api.agent.Token;
 import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TransactionNamePriority;
 import com.newrelic.api.agent.weaver.MatchType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
@@ -63,6 +64,8 @@ abstract class ContextImpl {
 	
 	@Trace(dispatcher = true)
 	<T> void emit(AbstractContext ctx, T argument, Handler<T> task) {
+		String taskType = task != null ? task.getClass().getName() : "Null";
+		NewRelic.getAgent().getTransaction().setTransactionName(TransactionNamePriority.CUSTOM_LOW, false, "Context-Emit", "ContextEmit",taskType);
 		Weaver.callOriginal();
 	}
 	

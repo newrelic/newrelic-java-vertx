@@ -47,6 +47,13 @@ public abstract class ClusteredEventBus {
 		Weaver.callOriginal();
 	}
 
+	@SuppressWarnings("rawtypes")
+	public MessageImpl createMessage(boolean send, String address, MultiMap headers, Object body, String codecName) {
+		MessageHeaders nrHeaders = new MessageHeaders(headers);
+		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(nrHeaders);
+		headers = nrHeaders.getMultimap();
+		return Weaver.callOriginal();
+	}
 
 	@Trace
 	private <T> void clusteredSendReply(String replyDest, OutboundDeliveryContext<T> sendContext) { 

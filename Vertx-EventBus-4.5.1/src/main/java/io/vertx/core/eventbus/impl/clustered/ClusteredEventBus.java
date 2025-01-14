@@ -41,7 +41,7 @@ public abstract class ClusteredEventBus {
 		}
 		Weaver.callOriginal();
 	}
-
+	
 	@Trace(async=true)
 	private <T> void sendToNode(OutboundDeliveryContext<T> sendContext, String nodeId) {
 		Weaver.callOriginal();

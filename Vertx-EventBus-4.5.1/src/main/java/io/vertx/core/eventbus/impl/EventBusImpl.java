@@ -26,14 +26,6 @@ public abstract class EventBusImpl  {
 
 	@Trace(dispatcher=true)
 	public <T> EventBus send(String address, Object message, DeliveryOptions options) {
-		MultiMap headers = options.getHeaders();
-		if(headers == null) {
-			options.setHeaders(new HeadersMultiMap());
-		}
-		MessageHeaders msgHeaders = new MessageHeaders(options.getHeaders());
-		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-		options.setHeaders(msgHeaders.getMultimap());
-		
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","send"});
 		NewRelic.getAgent().getTracedMethod().addCustomAttribute("address", address);
 		return Weaver.callOriginal();
@@ -41,35 +33,23 @@ public abstract class EventBusImpl  {
 
 	@Trace
 	public MessageImpl createMessage(boolean send, boolean localOnly, String address, MultiMap headers, Object body, String codecName) {
-		
-		MessageHeaders msgHeaders;
-		if(headers != null) {
-			msgHeaders = new MessageHeaders(headers);
-		} else {
-			msgHeaders = new MessageHeaders(new HeadersMultiMap());
+		if(headers == null) {
+			headers = new HeadersMultiMap();
+			MessageHeaders msgHeaders = new MessageHeaders(headers);
+			NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
 		}
-		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-		headers = msgHeaders.getMultimap();
 		MessageImpl msg = Weaver.callOriginal();
 		return msg;
 	}
 
 	@Trace(async=true)
 	protected void callCompletionHandlerAsync(Handler<AsyncResult<Void>> completionHandler) {
-		
+
 		Weaver.callOriginal();
 	}
 
 	@Trace(dispatcher=true)
 	public EventBus publish(String address, Object message, DeliveryOptions options) {
-		MultiMap headers = options.getHeaders();
-		if(headers == null) {
-			options.setHeaders(new HeadersMultiMap());
-		}
-		MessageHeaders msgHeaders = new MessageHeaders(options.getHeaders());
-		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-		options.setHeaders(msgHeaders.getMultimap());
-		
 		NewRelic.getAgent().getTracedMethod().setMetricName(new String[] {"Custom","EventBusImpl","publish"});
 		NewRelic.getAgent().getTracedMethod().addCustomAttribute("Address", address);
 		return Weaver.callOriginal();
@@ -77,16 +57,9 @@ public abstract class EventBusImpl  {
 
 	@Trace(dispatcher = true)
 	protected <T> void sendReply(MessageImpl replyMessage, DeliveryOptions options, ReplyHandler<T> replyHandler) {
-		
-		MultiMap headers = options.getHeaders();
-		if(headers == null) {
-			options.setHeaders(new HeadersMultiMap());
-		}
-		MessageHeaders msgHeaders = new MessageHeaders(options.getHeaders());
-		NewRelic.getAgent().getTransaction().insertDistributedTraceHeaders(msgHeaders);
-		options.setHeaders(msgHeaders.getMultimap());
+
 		TracedMethod traced = NewRelic.getAgent().getTracedMethod();
-		
+
 		traced.setMetricName(new String[] {"Custom","EventBusImpl","sendReply"});
 		if(replyMessage != null && replyMessage.address() != null) {
 			traced.addCustomAttribute("Reply-Address", replyMessage.address());
