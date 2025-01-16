@@ -1,12 +1,18 @@
 package io.vertx.core.eventbus.impl;
 
+import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
+import com.newrelic.api.agent.TransportType;
 import com.newrelic.api.agent.weaver.Weave;
 import com.newrelic.api.agent.weaver.Weaver;
+import com.newrelic.instrumentation.labs.vertx.MessageHeaders;
 import com.newrelic.instrumentation.labs.vertx.NRMessageHandlerWrapper;
 
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.impl.ContextInternal;
 
 @Weave
 public abstract class MessageConsumerImpl<T> {
@@ -22,4 +28,17 @@ public abstract class MessageConsumerImpl<T> {
 		return Weaver.callOriginal();
 	}
 
+	@Trace(dispatcher = true)
+	protected boolean doReceive(Message<T> message) {
+		MultiMap headers = message.headers();
+		MessageHeaders msgHeaders = new MessageHeaders(headers);
+		NewRelic.getAgent().getTransaction().acceptDistributedTraceHeaders(TransportType.Other, msgHeaders);
+		
+		return Weaver.callOriginal();
+	}
+	
+	@Trace
+	protected void dispatch(Message<T> msg, ContextInternal context, Handler<Message<T>> handler) {
+		Weaver.callOriginal();
+	}
 }
