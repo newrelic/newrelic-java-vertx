@@ -1,5 +1,9 @@
 package com.newrelic.instrumentation.labs.vertx;
 
+import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Token;
+import io.vertx.core.impl.future.Listener;
+
 public class VertxUtils {
 
 	private static final String REPLY = "vertx.reply";
@@ -14,6 +18,22 @@ public class VertxUtils {
 			return MASKED;
 		}
 		return address;
+	}
+
+	public static <T> NRFutureListenerWrapper<T> getListenerWrapper(Listener<T> listener) {
+		if(listener instanceof NRFutureListenerWrapper) {
+			return null;
+		}
+		Token token = NewRelic.getAgent().getTransaction().getToken();
+		if(token != null) {
+			if(token.isActive()) {
+				return new NRFutureListenerWrapper<>(listener,token);
+			} else {
+				token.expire();
+				token = null;
+			}
+		}
+		return null;
 	}
 	
 	public static boolean replyAddress(String address) {

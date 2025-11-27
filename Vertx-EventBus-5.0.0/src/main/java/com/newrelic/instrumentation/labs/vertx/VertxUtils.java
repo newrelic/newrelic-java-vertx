@@ -2,6 +2,8 @@ package com.newrelic.instrumentation.labs.vertx;
 
 import com.newrelic.api.agent.NewRelic;
 import com.newrelic.api.agent.Token;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Completable;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
@@ -11,7 +13,24 @@ public class VertxUtils {
 	private static final String REGEX = "([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12}";
 	private static final String REGEX2 = "([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12}";
 	private static final String MASKED = "XXXXXXXX-XXXX-XXXX-XXXXXXXXXXXX";
-	
+
+
+	public static <T> NRCompletableWrapper<T> getCompletableWrapper(Completable<T> delegate) {
+		if(delegate instanceof NRCompletableWrapper) {
+			return null;
+		}
+		Token token = NewRelic.getAgent().getTransaction().getToken();
+		if(token != null) {
+			if(token.isActive()) {
+				return new NRCompletableWrapper<>(delegate, token);
+			} else {
+				token.expire();
+				token = null;
+			}
+		}
+		return null;
+	}
+
 	public static String normalize(String address) {
 		if(address.contains(REPLY)) {
 			return REPLY;
