@@ -4,7 +4,7 @@
 apply plugin: 'java'
 
 dependencies {
-   implementation 'io.vertx:vertx-core:5.0.0'
+   implementation 'io.vertx:vertx-core:4.5.24'
 
    // New Relic Java Agent dependencies
    implementation 'com.newrelic.agent.java:newrelic-agent:6.4.0'
@@ -28,7 +28,7 @@ jar {
 }
 
 verifyInstrumentation {
-	passesOnly 'io.vertx:vertx-core:[5.0.0,)'
+	passesOnly 'io.vertx:vertx-core:[4.5.24,)'
   	excludeRegex '.*SNAPSHOT'
   	excludeRegex '.*milestone.*'
   	excludeRegex '.*Beta.*'

@@ -4,7 +4,7 @@
 apply plugin: 'java'
 
 dependencies {
-   implementation 'io.vertx:vertx-core:3.6.0'
+   implementation 'io.vertx:vertx-core:4.5.24'
    implementation fileTree(include: ['*.jar'], dir: '../libs')
 
    // New Relic Labs Java Agent dependencies
@@ -14,7 +14,7 @@ dependencies {
    
    testImplementation 'junit:junit:4.12'
    testImplementation 'org.nanohttpd:nanohttpd:2.3.1'
-   testImplementation 'io.vertx:vertx-hazelcast:3.6.0'
+   testImplementation 'io.vertx:vertx-hazelcast:4.5.24'
    testImplementation fileTree(include: ['*.jar'], dir: '../test-lib')
    
 }
@@ -29,7 +29,7 @@ jar {
 }
 
 verifyInstrumentation {
-  	passesOnly ('io.vertx:vertx-core:[3.6.0,3.7.1)') {
+  	passesOnly ('io.vertx:vertx-core:[4.5.24,3.7.1)') {
   	  compile('com.newrelic.agent.java:newrelic-agent:6.4.0')
   	}
    	excludeRegex '.*SNAPSHOT.*'
